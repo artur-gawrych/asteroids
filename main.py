@@ -4,6 +4,7 @@ from player import *
 from asteroid import *
 from asteroidfield import *
 from shoot import *
+import sys
 
 def main():
     pygame.init()
@@ -26,7 +27,6 @@ def main():
     print(f"Screen width: {SCREEN_WIDTH}")
     print(f"Screen height: {SCREEN_HEIGHT}")
 
-    c = 0
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -42,8 +42,8 @@ def main():
 
         for asteroid in asteroids:
             if asteroid.detect_collision(player):
-                c += 1
-                print(f"Game Over! - {c}")
+                print(f"Game Over!")
+                sys.exit()
 
         screen.fill("black")
 
