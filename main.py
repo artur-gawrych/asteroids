@@ -29,6 +29,8 @@ def main():
 
     score = 0
 
+    myfont = pygame.font.SysFont("monospace", 15)    
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -49,8 +51,10 @@ def main():
                 print(f"Score: {score}")
                 sys.exit()
 
+        label = myfont.render(f"SCORE: {score}", 1, (255,255,0))
         screen.fill("black")
-
+        screen.blit(label, (100, 100))
+        
         for obj in drawable:
             obj.draw(screen)
     
