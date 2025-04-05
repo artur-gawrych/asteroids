@@ -1,0 +1,14 @@
+def bomba(self):
+    global asteroids, score
+    total_score = 0
+    for asteroid in asteroids:
+        total_score += asteroid.score()  # punkty zależne od wielkości
+    score += total_score                 # dodaj do całkowitego wyniku
+    asteroids.clear()                   # zniszcz wszystkie asteroidy
+
+    if self.explosion_sound:
+        self.explosion_sound.play()
+
+    self.bomba_active = True
+    self.bomba_timer = 1.5
+    self.bombs -= 1
