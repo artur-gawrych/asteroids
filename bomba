@@ -1,0 +1,73 @@
+class Player(CircleShape):
+    def __init__(self, x, y):
+        super().__init__(x, y, radius=PLAYER_RADIUS)
+        self.rotation = 0
+        self.timer = 0
+        self.bomba_active = False
+        self.bomba_timer = 0
+        self.bombs = 1  # liczba dostępnych bomb
+        self.explosion_sound = pygame.mixer.Sound("explosion.wav")  # załaduj dźwięk
+
+    def triangle(self):
+        forward = pygame.Vector2(0, 1).rotate(self.rotation)
+        right = pygame.Vector2(0, 1).rotate(self.rotation + 90) * self.radius / 1.5
+        a = self.position + forward * self.radius
+        b = self.position - forward * self.radius - right
+        c = self.position - forward * self.radius + right
+        return [a, b, c]
+
+    def draw(self, screen):
+        pygame.draw.polygon(screen, "white", self.triangle(), 2)
+        if self.bomba_active:
+            font = pygame.font.SysFont(None, 120)
+            text = font.render("BOMBA", True, (255, 0, 0))
+            rect = text.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
+            screen.blit(text, rect)
+
+        # (opcjonalnie) wyświetl licznik bomb
+        font_small = pygame.font.SysFont(None, 36)
+        bombs_text = font_small.render(f"BOMBY: {self.bombs}", True, (255, 255, 255))
+        screen.blit(bombs_text, (20, 20))
+
+    def rotate(self, dt):
+        self.rotation += PLAYER_TURN_SPEED * dt
+
+    def update(self, dt):
+        keys = pygame.key.get_pressed()
+        self.timer -= dt
+
+        if self.bomba_active:
+            self.bomba_timer -= dt
+            if self.bomba_timer <= 0:
+                self.bomba_active = False
+
+        if keys[pygame.K_a]:
+            self.rotate(-dt)
+        if keys[pygame.K_d]:
+            self.rotate(dt)
+        if keys[pygame.K_w]:
+            self.move(dt)
+        if keys[pygame.K_s]:
+            self.move(-dt)
+        if keys[pygame.K_SPACE] and self.timer <= 0:
+            self.shoot()
+        if keys[pygame.K_b] and self.bombs > 0:
+            self.bomba()
+
+    def move(self, dt):
+        forward = pygame.Vector2(0, 1).rotate(self.rotation)
+        self.position += forward * PLAYER_SPEED * dt
+
+    def shoot(self):
+        bullet = Shoot(self.position.x, self.position.y, self.radius)
+        bullet.velocity = pygame.Vector2(0, 1).rotate(self.rotation)
+        bullet.velocity *= PLAYER_SHOOT_SPEED
+        self.timer = PLAYER_SHOOT_COOLDOWN
+
+    def bomba(self):
+        global enemies
+        enemies.clear()
+        self.explosion_sound.play()  # efekt dźwiękowy
+        self.bomba_active = True
+        self.bomba_timer = 1.5
+        self.bombs -= 1
